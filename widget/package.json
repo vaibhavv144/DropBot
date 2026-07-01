@@ -1,0 +1,13 @@
+{
+  "name": "rag-chatbot-widget",
+  "version": "0.1.0",
+  "description": "Drop-in embeddable RAG chatbot widget (Shadow DOM, zero dependencies).",
+  "private": true,
+  "scripts": {
+    "build": "esbuild embed.js --bundle --minify --outfile=dist/embed.min.js",
+    "serve": "npx --yes serve -l 5173 ."
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}

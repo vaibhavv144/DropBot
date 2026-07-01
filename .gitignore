@@ -1,0 +1,36 @@
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+backend/.env
+backend/chatbot.db
+
+# Node / Next
+node_modules/
+.next/
+dashboard/.env.local
+widget/dist/
+
+# Logs & local files
+*.log
+.server.log
+.dashboard.log
+.dashboard-build.log
+.widget.log
+
+# Env (never commit real secrets; *.example files are OK)
+.env
+**/.env
+!**/.env.example
+!**/.env.local.example
+dashboard/.env*.local
+
+# Build artifacts
+dashboard/tsconfig.tsbuildinfo
+
+# Local tooling / editor config
+.claude/
+.agents/
+
+# OS
+.DS_Store

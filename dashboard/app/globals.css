@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --primary: 243 75% 59%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 243 75% 59%;
+  --radius: 0.65rem;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* ---------------------------------------------------------------------------
+   Landing page (marketing) styles
+   --------------------------------------------------------------------------- */
+
+/* Animated hero background — a lightweight CSS stand-in for the WebGL shader
+   stack (Swirl + ChromaFlow + FlutedGlass + FilmGrain). */
+.hero-aurora {
+  position: absolute;
+  inset: -20%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+.hero-aurora span {
+  position: absolute;
+  border-radius: 9999px;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+.hero-aurora .orb-1 {
+  width: 48vw;
+  height: 48vw;
+  left: -6%;
+  top: -8%;
+  background: radial-gradient(circle at 30% 30%, #c7d2fe, transparent 70%);
+  animation: aurora-drift-1 22s ease-in-out infinite;
+}
+.hero-aurora .orb-2 {
+  width: 42vw;
+  height: 42vw;
+  right: -4%;
+  top: 4%;
+  background: radial-gradient(circle at 60% 40%, #818cf8, transparent 70%);
+  animation: aurora-drift-2 26s ease-in-out infinite;
+}
+.hero-aurora .orb-3 {
+  width: 40vw;
+  height: 40vw;
+  left: 18%;
+  bottom: -18%;
+  background: radial-gradient(circle at 50% 50%, #a5b4fc, transparent 70%);
+  animation: aurora-drift-3 30s ease-in-out infinite;
+}
+.hero-aurora .orb-4 {
+  width: 26vw;
+  height: 26vw;
+  right: 14%;
+  bottom: -6%;
+  background: radial-gradient(circle at 50% 50%, #fbcfe8, transparent 70%);
+  animation: aurora-drift-1 24s ease-in-out infinite reverse;
+}
+
+/* Fluted-glass vertical striping + film grain overlay */
+.hero-fluted {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.12) 0px,
+    rgba(255, 255, 255, 0) 3px,
+    rgba(0, 0, 0, 0.015) 6px,
+    rgba(255, 255, 255, 0.12) 9px
+  );
+  mix-blend-mode: overlay;
+}
+.hero-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes aurora-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(6%, 8%) scale(1.12); }
+}
+@keyframes aurora-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1.05); }
+  50% { transform: translate(-7%, 6%) scale(0.95); }
+}
+@keyframes aurora-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(5%, -7%) scale(1.1); }
+}
+
+/* Typing dots for the mock chat panel */
+@keyframes typing-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-3px); opacity: 1; }
+}
+.typing-dot {
+  animation: typing-bounce 1.2s ease-in-out infinite;
+}
+
+/* Gentle floating effect for the hero product preview */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.animate-float {
+  animation: float-y 6s ease-in-out infinite;
+}
+
+/* Shimmering gradient sweep (used on accent accordion border / highlights) */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 2.5s linear infinite;
+}
+
+/* ---------------------------------------------------------------------------
+   App (dashboard) styles — a calmer echo of the landing's aurora aesthetic
+   --------------------------------------------------------------------------- */
+
+/* Ambient page background for the signed-in app. Soft indigo/pink wash on a
+   near-white canvas, mirroring the hero without the heavy motion. */
+.app-bg {
+  position: relative;
+  min-height: 100vh;
+  background-color: #f6f6f8;
+}
+.app-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(42rem 42rem at 12% -8%, rgba(129, 140, 248, 0.16), transparent 60%),
+    radial-gradient(38rem 38rem at 92% 4%, rgba(165, 180, 252, 0.14), transparent 60%),
+    radial-gradient(34rem 34rem at 78% 96%, rgba(251, 207, 232, 0.12), transparent 60%);
+}
+.app-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Soft lift used on interactive cards across the app. */
+.card-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 48px rgba(79, 70, 229, 0.12);
+}
+
+/* Staggered entrance for grid items. */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-rise {
+  animation: rise-in 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-aurora span,
+  .typing-dot,
+  .animate-float,
+  .animate-shimmer,
+  .animate-rise {
+    animation: none !important;
+  }
+  .card-lift:hover {
+    transform: none;
+  }
+}

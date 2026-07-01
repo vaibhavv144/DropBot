@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Widget Demo — test your bot</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        margin: 0;
+        color: #1f2937;
+        background: linear-gradient(180deg, #f8fafc, #eef2ff);
+      }
+      .hero {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 80px 24px;
+      }
+      h1 { font-size: 40px; margin: 0 0 12px; }
+      p { font-size: 18px; line-height: 1.6; color: #4b5563; }
+      .card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 24px;
+      }
+      code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+      label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+      input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: ui-monospace, monospace;
+      }
+      button {
+        margin-top: 12px;
+        padding: 10px 18px;
+        background: #4f46e5;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover { background: #4338ca; }
+      .hint { font-size: 13px; color: #6b7280; margin-top: 8px; }
+      .status { font-size: 14px; margin-top: 12px; }
+      .status.ok { color: #059669; }
+      .status.err { color: #dc2626; }
+    </style>
+  </head>
+  <body>
+    <div class="hero">
+      <h1>Widget demo</h1>
+      <p>
+        This page simulates a customer website with your chat widget in the corner.
+        Paste your bot's <strong>public key</strong> from the dashboard <strong>Embed</strong> tab
+        and click <strong>Load widget</strong>.
+      </p>
+
+      <div class="card">
+        <label for="bot-key">Bot public key</label>
+        <input
+          id="bot-key"
+          type="text"
+          placeholder="pub_xxxxxxxxxxxxxxxx"
+          autocomplete="off"
+        />
+        <label for="api-base" style="margin-top: 14px">Backend URL</label>
+        <input
+          id="api-base"
+          type="text"
+          value="http://127.0.0.1:8000"
+          autocomplete="off"
+        />
+        <button type="button" id="load-btn">Load widget</button>
+        <p class="hint">
+          Tip: open with a pre-filled key —
+          <code>?bot=pub_xxx&amp;api=http://127.0.0.1:8000</code>
+        </p>
+        <p class="hint">
+          If chat returns <strong>403</strong>, set the bot&apos;s Allowed domains to
+          <code>*</code> or add <code>localhost</code> in the dashboard Appearance tab.
+        </p>
+        <p id="status" class="status"></p>
+      </div>
+
+      <div class="card">
+        <strong>Try asking about content you indexed:</strong>
+        <ul>
+          <li>A question from your crawled website</li>
+          <li>Something from an uploaded PDF or document</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        Production embed snippet:
+        <pre><code>&lt;script src="https://cdn.yourbot.com/embed.js"
+        data-bot-id="YOUR_KEY"
+        data-api="https://your-backend.com" defer&gt;&lt;/script&gt;</code></pre>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var botInput = document.getElementById("bot-key");
+        var apiInput = document.getElementById("api-base");
+        var statusEl = document.getElementById("status");
+        var loadedScript = null;
+
+        if (params.get("bot")) botInput.value = params.get("bot");
+        if (params.get("api")) apiInput.value = params.get("api");
+
+        function setStatus(msg, ok) {
+          statusEl.textContent = msg;
+          statusEl.className = "status " + (ok ? "ok" : "err");
+        }
+
+        function loadWidget() {
+          var botKey = botInput.value.trim();
+          var apiBase = apiInput.value.trim().replace(/\/$/, "");
+
+          if (!botKey) {
+            setStatus("Enter your bot public key first.", false);
+            return;
+          }
+          if (!botKey.startsWith("pub_")) {
+            setStatus("Key should start with pub_ (copy it from the Embed tab).", false);
+            return;
+          }
+
+          // Remove previous widget (script + shadow host)
+          if (loadedScript && loadedScript.parentNode) {
+            loadedScript.parentNode.removeChild(loadedScript);
+          }
+          var oldHost = document.querySelector("[data-chatbot-widget]");
+          if (oldHost) oldHost.remove();
+
+          var script = document.createElement("script");
+          script.src = "../embed.js";
+          script.setAttribute("data-bot-id", botKey);
+          script.setAttribute("data-api", apiBase);
+          script.defer = true;
+          document.body.appendChild(script);
+          loadedScript = script;
+
+          // Update URL so refresh keeps the same bot
+          var next = new URL(window.location.href);
+          next.searchParams.set("bot", botKey);
+          next.searchParams.set("api", apiBase);
+          window.history.replaceState({}, "", next);
+
+          setStatus("Widget loaded — check the bottom corner.", true);
+        }
+
+        document.getElementById("load-btn").addEventListener("click", loadWidget);
+
+        // Auto-load when opened with ?bot= in the URL
+        if (params.get("bot")) loadWidget();
+      })();
+    </script>
+  </body>
+</html>

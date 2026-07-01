@@ -1,0 +1,35 @@
+# Render Blueprint — deploys the FastAPI backend + a free Postgres database.
+# The backend also serves the widget loader at /embed.js, so this is the only
+# backend deployment needed. The Next.js dashboard is deployed separately on
+# Vercel (see DEPLOY.md).
+#
+# In the Render dashboard: New + → "Blueprint" → connect this repo. Render reads
+# this file, creates the service and database, and wires DATABASE_URL for you.
+services:
+  - type: web
+    name: dropbot-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      # Auto-generated strong secret for signing JWTs.
+      - key: SECRET_KEY
+        generateValue: true
+      # Injected from the managed Postgres database below.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dropbot-db
+          property: connectionString
+      # Paste your key in the Render dashboard (Environment tab). Leave unset to
+      # run with the offline extractive fallback.
+      - key: GEMINI_API_KEY
+        sync: false
+
+databases:
+  - name: dropbot-db
+    plan: free
