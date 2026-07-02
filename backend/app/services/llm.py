@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 from collections.abc import Iterator
 
 from ..config import settings
 from .gemini_client import get_genai
+
+logger = logging.getLogger("llm")
 
 GROUNDED_SYSTEM = (
     "You are a helpful assistant embedded on a specific website. "
@@ -54,14 +57,27 @@ class LLMProvider:
 
     def stream(self, prompt: str, *, context: str, answer_mode: str) -> Iterator[str]:
         if self._model is not None:
+            produced = False
             try:
                 resp = self._model.generate_content(prompt, stream=True)
                 for chunk in resp:
                     if getattr(chunk, "text", None):
+                        produced = True
                         yield chunk.text
-                return
+                if produced:
+                    return
+                # Model returned no text (e.g. blocked/empty response).
+                logger.warning(
+                    "Gemini model %s returned no text; using fallback",
+                    settings.gemini_chat_model,
+                )
             except Exception:
-                pass
+                # Log the real reason (bad model name, quota, key scope, etc.)
+                # instead of silently degrading to the extractive dump.
+                logger.exception(
+                    "Gemini generate_content failed for model %s; using fallback",
+                    settings.gemini_chat_model,
+                )
         # Offline fallback: return an extractive answer from the context.
         yield self._fallback_answer(context, answer_mode)
 
