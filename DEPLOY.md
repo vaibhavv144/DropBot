@@ -28,18 +28,36 @@ git push -u origin main
 
 ---
 
-## 1. Backend on Render
+## 1. Database on Supabase (free, permanent Postgres)
+
+1. Go to **supabase.com** → sign in → **New project**.
+2. Pick a name, a **region close to your Render region**, and set a **database
+   password** (save it somewhere — you'll need it in a moment).
+3. Wait ~1 minute for it to provision.
+4. Get the connection string: top bar **Connect** (or **Project Settings →
+   Database → Connection string**) → choose **Session pooler** → copy the **URI**.
+   It looks like:
+   ```
+   postgresql://postgres.abcxyz:[YOUR-PASSWORD]@aws-0-xx.pooler.supabase.com:5432/postgres
+   ```
+   Replace `[YOUR-PASSWORD]` with the password from step 2.
+
+> Use the **Session pooler** string (works cleanly with SQLAlchemy). No need to
+> enable any extensions — embeddings are stored as JSON, so it works out of the box.
+
+## 2. Backend on Render
 
 1. Go to **render.com** → **New +** → **Blueprint**.
-2. Connect your GitHub repo. Render detects **`render.yaml`** and shows a service
-   `dropbot-api` + a free Postgres `dropbot-db`. Click **Apply**.
-   - `DATABASE_URL` is wired automatically from the database.
+2. Connect your GitHub repo. Render detects **`render.yaml`** and shows the
+   `dropbot-api` service. Click **Apply**.
    - `SECRET_KEY` is auto-generated.
-3. Add your LLM key: open the **dropbot-api** service → **Environment** →
-   add `GEMINI_API_KEY` = *your key from https://aistudio.google.com/app/apikey*.
-   (Skip this to run with the offline fallback.)
+3. Open the **dropbot-api** service → **Environment** and add:
+   - `DATABASE_URL` = your Supabase Session-pooler URI from step 1
+   - `GEMINI_API_KEY` = *your key from https://aistudio.google.com/app/apikey*
+     (skip to run with the offline fallback)
 4. Wait for the deploy to go green, then copy the service URL, e.g.
-   **`https://dropbot-api.onrender.com`**.
+   **`https://dropbot-api.onrender.com`**. On first boot the backend creates all
+   its tables in your Supabase database automatically.
 5. Verify:
    - `https://dropbot-api.onrender.com/api/health` → JSON `{"status":"ok", ...}`
    - `https://dropbot-api.onrender.com/embed.js` → the widget JavaScript
@@ -49,7 +67,7 @@ git push -u origin main
 
 ---
 
-## 2. Dashboard on Vercel
+## 3. Dashboard on Vercel
 
 1. Go to **vercel.com** → **Add New… → Project** → import the same repo.
 2. **Root Directory:** set to **`dashboard`** (important — the repo has multiple apps).
@@ -69,7 +87,7 @@ config.
 
 ---
 
-## 3. Try the full flow
+## 4. Try the full flow
 
 1. Open your Vercel dashboard URL → sign up → create a bot (or use Guided setup).
 2. Add a website URL or upload a doc; wait for it to finish indexing.
@@ -87,8 +105,8 @@ config.
 
 ## Notes / gotchas
 
-- **Free Postgres expires** after ~90 days on Render's free plan. Upgrade or
-  recreate for anything long-lived.
+- **Supabase free tier pauses** the database after ~1 week of inactivity — just
+  click **Restore** in the Supabase dashboard to wake it. It does not expire/delete.
 - **Redeploys:** push to `main` → both Render and Vercel auto-redeploy.
 - **Rate limiting & scheduler** run in-process on the single Render instance —
   fine for one instance. If you scale to multiple, move them to Redis.

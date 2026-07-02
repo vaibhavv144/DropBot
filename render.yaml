@@ -1,10 +1,9 @@
-# Render Blueprint — deploys the FastAPI backend + a free Postgres database.
+# Render Blueprint — deploys the FastAPI backend.
+# The database lives on Supabase (free, permanent Postgres), so no Render
+# database is provisioned here — you set DATABASE_URL manually in the Render
+# dashboard using your Supabase connection string (see DEPLOY.md).
 # The backend also serves the widget loader at /embed.js, so this is the only
-# backend deployment needed. The Next.js dashboard is deployed separately on
-# Vercel (see DEPLOY.md).
-#
-# In the Render dashboard: New + → "Blueprint" → connect this repo. Render reads
-# this file, creates the service and database, and wires DATABASE_URL for you.
+# backend deployment needed. The dashboard is deployed separately on Vercel.
 services:
   - type: web
     name: dropbot-api
@@ -20,16 +19,11 @@ services:
       # Auto-generated strong secret for signing JWTs.
       - key: SECRET_KEY
         generateValue: true
-      # Injected from the managed Postgres database below.
+      # Supabase Postgres connection string — paste it in the Render dashboard
+      # (Environment tab). Kept out of the repo since it contains a password.
       - key: DATABASE_URL
-        fromDatabase:
-          name: dropbot-db
-          property: connectionString
-      # Paste your key in the Render dashboard (Environment tab). Leave unset to
-      # run with the offline extractive fallback.
+        sync: false
+      # Paste your key in the Render dashboard. Leave unset to run with the
+      # offline extractive fallback.
       - key: GEMINI_API_KEY
         sync: false
-
-databases:
-  - name: dropbot-db
-    plan: free
